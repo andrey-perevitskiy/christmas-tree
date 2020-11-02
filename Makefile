@@ -1,17 +1,27 @@
-CC=gcc
-CFLAGS=-Wall
-LDFLAGS=-lncurses
-OBJS=main.o ncurapi.o tree.o
-DEPS=ncruapi.h
-PROG_NAME=prog
+CC = gcc
+CFLAGS = -Wall -Wextra -Iinclude
+LDFLAGS = -lncurses -lm
+SRCDIR = src
+OBJDIR = obj
+BINDIR = bin
+SRCS = $(addprefix $(SRCDIR)/,main.c tree.c)
+OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
-.PHONY: clean
+.PHONY: all
+all: $(BINDIR)/prog
 
-all: $(OBJS)
-	$(CC) $(LDFLAGS) -o $(PROG_NAME) $^
+$(BINDIR)/prog: $(OBJS) | $(BINDIR)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-%.o: %.c $(DEPS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(OBJDIR):
+	[ -d $(OBJDIR) ] || mkdir $(OBJDIR)
+
+$(BINDIR):
+	[ -d $(BINDIR) ] || mkdir $(BINDIR)
+
+.PHONY: clean
 clean:
-	rm -f $(PROG_NAME) *.o
+	rm -rf $(OBJDIR) $(BINDIR)
